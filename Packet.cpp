@@ -113,6 +113,7 @@ Packet::Packet(char* b)
             tmp[size - 3] = '\0';
             data.arg->append(tmp);
             break;
+
         }
         default:
             break;
