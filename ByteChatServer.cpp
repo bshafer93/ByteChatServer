@@ -2,6 +2,7 @@
 
 ByteChatServer::ByteChatServer()
 {
+   
 }
 
 ByteChatServer::~ByteChatServer()
@@ -14,6 +15,7 @@ void ByteChatServer::Initialize()
     HELPLIST.push_back("\\setname [name]               To give yourself a username.");
     HELPLIST.push_back("\\help                         List available commands.");
     HELPLIST.push_back("\\showonline                   Lists all active users currently in the chat.");
+    HELPLIST.push_back("\\setfontcolor                 change the color of the font.");
     std::cout << "Server Starting" << std::endl;
 
     // open TCP Socket
