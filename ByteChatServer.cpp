@@ -19,8 +19,9 @@ void ByteChatServer::Initialize()
 
     std::cout << "Server Starting" << std::endl;
 
-    // open TCP Socket
+    
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
     if (sockfd == -1) {
         std::cout << "socket() failed..." << std::endl;
         return;
@@ -35,12 +36,12 @@ void ByteChatServer::Initialize()
         return;
     }
 
-    //Fill out server details
+    
     server_info.sin_family = AF_INET;
     inet_pton(AF_INET, IPADDR, &server_info.sin_addr.s_addr);
     server_info.sin_port = htons(PORT);
 
-    //bind to port
+    
     if (bind(sockfd, (const sockaddr*)&server_info, sizeof(server_info)) == -1) {
         std::cout << "bind() failed..." << std::endl;
         return;
@@ -49,7 +50,7 @@ void ByteChatServer::Initialize()
         std::cout << "Bind Successful..." << std::endl;
     }
 
-    // Listen to clients
+
     if (listen(sockfd, BACKLOG)) {
         std::cout << "listen() failed..." << std::endl;
         return;

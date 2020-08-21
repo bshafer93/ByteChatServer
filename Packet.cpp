@@ -70,7 +70,7 @@ Packet::Packet(char* b)
         std::string s;
         data.str = new std::string;
         char* tmp = new char[size - 1];
-        //TO LOOK OVER
+        //TODO  need to find a less hacky way  
         memcpy(tmp, b + 2, size - 1);
         tmp[size - 2] = '\0';
         data.str->append(tmp);
@@ -86,7 +86,7 @@ Packet::Packet(char* b)
             std::string s;
             data.arg = new std::string;
             char* tmp = new char[size - 2];
-            //TO LOOK OVER
+            //TODO  need to find a less hacky way 
             memcpy(tmp, b + 3, size - 2);
             tmp[size - 3] = '\0';
             data.arg->append(tmp);
@@ -97,7 +97,7 @@ Packet::Packet(char* b)
             std::string s;
             data.arg = new std::string;
             char* tmp = new char[size - 2];
-            //TO LOOK OVER
+            //TODO  need to find a less hacky way 
             memcpy(tmp, b + 3, size - 2);
             tmp[size - 3] = '\0';
             data.arg->append(tmp);
@@ -108,7 +108,7 @@ Packet::Packet(char* b)
             std::string s;
             data.arg = new std::string;
             char* tmp = new char[size - 2];
-            //TO LOOK OVER
+            //TODO  need to find a less hacky way 
             memcpy(tmp, b + 3, size - 2);
             tmp[size - 3] = '\0';
             data.arg->append(tmp);
@@ -128,10 +128,12 @@ Packet::~Packet() {
 
 uint8_t* Packet::BuildPacket() {
     uint8_t* packet;
+
 #ifdef PACKET_DEBUG 
     std::cout << "----------------------------Building Packet-------------------------" << std::endl;
     PrintPacketInfo();
 #endif
+
     //Create Packet
     packet = new uint8_t[size];
     //Zero Out packet memory
@@ -141,18 +143,20 @@ uint8_t* Packet::BuildPacket() {
     switch (msgtype)
     {
     case Packet::MSGTYPE::HEARTBEAT:
-        //Fill Packet Details
+        //Fill Packet Details...Note, size will overwrite any number larger than a char
         packet[0] = Packet::MSGTYPE::HEARTBEAT;
-        //Pure jank right here
+
+        //TODO  redo to find a more elegant solution to extract size
         *((char*)(packet + 1)) = size;
 #ifdef PACKET_DEBUG 
         std::cout << "--------------------------------------------------------------------" << std::endl;
 #endif #endif
+
         return packet;
         break;
     case Packet::MSGTYPE::STRING:
         packet[0] = msgtype;
-        //Pure jank right here
+        //TODO  redo to find a more elegant solution to extract size
         *((char*)(packet + 1)) = size;
         memcpy(packet + 2, data.str->c_str(), data.str->size());
 #ifdef PACKET_DEBUG 
@@ -162,6 +166,7 @@ uint8_t* Packet::BuildPacket() {
         break;
     case Packet::MSGTYPE::COMMAND:
         packet[0] = msgtype;
+        //TODO  redo to find a more elegant solution to extract size
         *((char*)(packet + 1)) = size;
         *((char*)(packet + 2)) = static_cast<int>(data.cmd);
         memcpy(packet + 3, data.str->c_str(), data.str->size());
