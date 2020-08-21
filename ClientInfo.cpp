@@ -7,14 +7,14 @@ ClientInfo::ClientInfo()
 
 ClientInfo::ClientInfo(int socketfd, char* n, char* ipAddr)
 {
-	fd = socketfd;
+	client_fd = socketfd;
 	name = std::string(n);
 	ip = std::string(ipAddr);
 }
 
 ClientInfo::ClientInfo(int socketfd, std::string& n, char* ipAddr)
 {
-	fd = socketfd;
+	client_fd = socketfd;
 	name = n;
 	ip = std::string(ipAddr);
 
@@ -25,17 +25,17 @@ ClientInfo::~ClientInfo()
 
 }
 
-void ClientInfo::Set_fd(int clientfd)
+void ClientInfo::SetFd(int clientfd)
 {
-	fd = clientfd;
+	client_fd = clientfd;
 }
 
-int ClientInfo::Get_fd()
+int ClientInfo::GetFd()
 {
-	return fd;
+	return client_fd;
 }
 
-bool ClientInfo::Set_name(std::string n)
+bool ClientInfo::SetName(std::string n)
 {
 	if (n.length() > 32) {
 		return false;
@@ -45,17 +45,17 @@ bool ClientInfo::Set_name(std::string n)
 	return true;
 }
 
-std::string ClientInfo::Get_name()
+std::string ClientInfo::GetName()
 {
 	return name;
 }
 
-void ClientInfo::Set_ip(std::string ipAddr)
+void ClientInfo::SetIP(std::string ipAddr)
 {
 	ip = ipAddr;
 }
 
-std::string ClientInfo::Get_ip()
+std::string ClientInfo::GetIP()
 {
 	return ip;
 }

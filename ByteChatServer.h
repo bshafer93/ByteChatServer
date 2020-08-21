@@ -52,12 +52,12 @@ class ByteChatServer
 	private:
 		epoll_event events[MAXEVENTS];
 		std::vector<int> clientsfd;
-		std::map<int,ClientInfo> connClients;
+		std::map<int,ClientInfo> connected_clients;
 		epoll_event eventd;
 		int sockfd,epollfd,waitfd;
-		struct sockaddr_in serverInfo;
+		struct sockaddr_in server_info;
 		int opt = true;
-		std::vector<std::string> HELPLIST;
+		std::vector<std::string> help_list;
 
 };
 

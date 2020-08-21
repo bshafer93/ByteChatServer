@@ -12,10 +12,11 @@ ByteChatServer::~ByteChatServer()
 
 void ByteChatServer::Initialize()
 {
-    HELPLIST.push_back("\\setname [name]               To give yourself a username.");
-    HELPLIST.push_back("\\help                         List available commands.");
-    HELPLIST.push_back("\\showonline                   Lists all active users currently in the chat.");
-    HELPLIST.push_back("\\setfontcolor                 change the color of the font.");
+    help_list.push_back("\\setname [name]               To give yourself a username.");
+    help_list.push_back("\\help                         List available commands.");
+    help_list.push_back("\\showonline                   Lists all active users currently in the chat.");
+    help_list.push_back("\\setfontcolor                 change the color of the font.");
+
     std::cout << "Server Starting" << std::endl;
 
     // open TCP Socket
@@ -35,12 +36,12 @@ void ByteChatServer::Initialize()
     }
 
     //Fill out server details
-    serverInfo.sin_family = AF_INET;
-    inet_pton(AF_INET, IPADDR, &serverInfo.sin_addr.s_addr);
-    serverInfo.sin_port = htons(PORT);
+    server_info.sin_family = AF_INET;
+    inet_pton(AF_INET, IPADDR, &server_info.sin_addr.s_addr);
+    server_info.sin_port = htons(PORT);
 
     //bind to port
-    if (bind(sockfd, (const sockaddr*)&serverInfo, sizeof(serverInfo)) == -1) {
+    if (bind(sockfd, (const sockaddr*)&server_info, sizeof(server_info)) == -1) {
         std::cout << "bind() failed..." << std::endl;
         return;
     }
@@ -61,9 +62,9 @@ void ByteChatServer::Initialize()
 
 void ByteChatServer::Initialize(const char* ipaddr, int port)
 {
-    HELPLIST.push_back("\\setname [name]               To give yourself a username.");
-    HELPLIST.push_back("\\help                         List available commands.");
-    HELPLIST.push_back("\\showonline                   Lists all active users currently in the chat.");
+    help_list.push_back("\\setname [name]               To give yourself a username.");
+    help_list.push_back("\\help                         List available commands.");
+    help_list.push_back("\\showonline                   Lists all active users currently in the chat.");
 
 
     std::cout << "Server Starting" << std::endl;
@@ -83,13 +84,13 @@ void ByteChatServer::Initialize(const char* ipaddr, int port)
     }
 
     //Fill out server details
-    serverInfo.sin_family = AF_INET;
+    server_info.sin_family = AF_INET;
     //serverInfo.sin_addr.s_addr = inet_addr("161.35.232.244");
-    inet_pton(AF_INET, ipaddr, &serverInfo.sin_addr.s_addr);
-    serverInfo.sin_port = htons(port);
+    inet_pton(AF_INET, ipaddr, &server_info.sin_addr.s_addr);
+    server_info.sin_port = htons(port);
 
     //bind to port
-    if (bind(sockfd, (const sockaddr*)&serverInfo, sizeof(serverInfo)) == -1) {
+    if (bind(sockfd, (const sockaddr*)&server_info, sizeof(server_info)) == -1) {
         std::cout << "bind() failed..." << std::endl;
     }
     else {
@@ -170,7 +171,7 @@ void ByteChatServer::NewClient()
     getnameinfo((struct sockaddr*) & client_addr, addr_size, hoststr, sizeof(hoststr), portstr, sizeof(portstr), NI_NUMERICHOST | NI_NUMERICSERV);
     //Add Client to Currently Connected List
     std::string na = "";
-    connClients.insert({ newSock, ClientInfo(newSock,na,hoststr) });
+    connected_clients.insert({ newSock, ClientInfo(newSock,na,hoststr) });
     std::cout << "Client Connected: " << GetCurTime() << std::endl;
     std::cout << "Client IP:" << hoststr << std::endl;
     std::string hello = "Welcome, press tab to activate chat input.";
@@ -186,8 +187,8 @@ void ByteChatServer::RemoveClient(int clientfd)
     epoll_ctl(epollfd, EPOLL_CTL_DEL, clientfd, &eventd);
     close(clientfd);
     remove(clientsfd.begin(), clientsfd.end(), clientfd);
-   std::cout<< connClients.at(clientfd).Get_name() <<" has gone offline." << std::endl;
-    connClients.erase(clientfd);
+   std::cout<< connected_clients.at(clientfd).GetName() <<" has gone offline." << std::endl;
+    connected_clients.erase(clientfd);
   
 
 }
@@ -209,7 +210,7 @@ bool ByteChatServer::HandleIncoming(int clientsockfd)
         std::cout << "--------------------------------------------------------------------" << std::endl;
 
         //Get who sent the packet... map structure is fine for low user count.
-        ClientInfo* from = &connClients.at(clientsockfd);
+        ClientInfo* from = &connected_clients.at(clientsockfd);
 
         switch (p.msgtype)
         {
@@ -234,42 +235,42 @@ void ByteChatServer::HandleCommandPacket(ClientInfo* from, Packet* p)
     {
         case Packet::COMMANDTYPE::SETNAME:
         {
-            if (!from->Set_name(*p->data.arg)) {
-                SendString(from->Get_fd(), "Name exceeds character limit of 32.");
+            if (!from->SetName(*p->data.arg)) {
+                SendString(from->GetFd(), "Name exceeds character limit of 32.");
             }
             else {
                 std::string response = "Name Set to: <" + *p->data.arg + ">";
-                SendString(from->Get_fd(), response);
+                SendString(from->GetFd(), response);
             }
             break;
         }
         case Packet::COMMANDTYPE::HELP:
         {
             //Loop Through all Commands
-            SendString(from->Get_fd(), "------------------------HELP----------------------------------");
+            SendString(from->GetFd(), "------------------------HELP----------------------------------");
             
-            for (int i = 0; i < HELPLIST.size(); i++) 
+            for (int i = 0; i < help_list.size(); i++) 
             {
-                SendString(from->Get_fd(), HELPLIST[i]);        
+                SendString(from->GetFd(), help_list[i]);        
             }
 
             
          
           
-            SendString(from->Get_fd(), "--------------------------------------------------------------");
+            SendString(from->GetFd(), "--------------------------------------------------------------");
             break;
         }
 
         
         case Packet::COMMANDTYPE::LSONLINE:
         {
-            SendString(from->Get_fd(), "------------------------ONLINE----------------------------------");
-            for (auto client : connClients) {
+            SendString(from->GetFd(), "------------------------ONLINE----------------------------------");
+            for (auto client : connected_clients) {
            
-                SendString(from->Get_fd(), client.second.Get_name());
+                SendString(from->GetFd(), client.second.GetName());
               
             }
-            SendString(from->Get_fd(), "----------------------------------------------------------------------");
+            SendString(from->GetFd(), "----------------------------------------------------------------------");
             break;
         }
         default:
@@ -305,15 +306,15 @@ void ByteChatServer::SendString(int clientfd,std::string s)
 
 void ByteChatServer::SendToAll(ClientInfo* fromClient , std::string s) {
 
-    std::cout << fromClient->Get_name() << ":" << s << std::endl;
-    std::string newMsg = "<" + fromClient->Get_name() + ">:";
+    std::cout << fromClient->GetName() << ":" << s << std::endl;
+    std::string newMsg = "<" + fromClient->GetName() + ">:";
     newMsg.append(s);
     Packet msgP(Packet::MSGTYPE::STRING, newMsg);
 
-    for (auto client : connClients) {
+    for (auto client : connected_clients) {
         
-        std::cout << "Sending to" << client.second.Get_name() << std::endl;
-            if (send(client.second.Get_fd(), msgP.BuildPacket(), msgP.size, 0) == -1) {
+        std::cout << "Sending to" << client.second.GetName() << std::endl;
+            if (send(client.second.GetFd(), msgP.BuildPacket(), msgP.size, 0) == -1) {
                 
                 std::cout << "send() failed..." << std::endl;
             }

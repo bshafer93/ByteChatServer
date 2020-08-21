@@ -8,26 +8,26 @@ public:
 	ClientInfo(int socketfd, std::string& n, char* ipAddr);
 	~ClientInfo();
 
-	void Set_fd(int clientfd);
-	int Get_fd();
+	void SetFd(int clientfd);
+	int GetFd();
 
-	bool Set_name(std::string n);
-	std::string Get_name();
+	bool SetName(std::string n);
+	std::string GetName();
 
-	void Set_ip(std::string ipAddr);
-	std::string Get_ip();
+	void SetIP(std::string ipAddr);
+	std::string GetIP();
 
 
 	//Custom Operators
 	bool operator< (const ClientInfo& rhs) const {
-		if (fd < rhs.fd) {
+		if (client_fd < rhs.client_fd) {
 			return true;
 		}
 		return false;
 	}
 
 private:
-	int fd;
+	int client_fd;
 	std::string name;
 	std::string ip;
 
