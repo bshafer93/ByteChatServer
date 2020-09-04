@@ -66,11 +66,10 @@ void ByteChatServer::Initialize(const char* ipaddr, int port)
     help_list.push_back("\\setname [name]               To give yourself a username.");
     help_list.push_back("\\help                         List available commands.");
     help_list.push_back("\\showonline                   Lists all active users currently in the chat.");
-
+    help_list.push_back("\\setfontcolor                 change the color of the font.");
 
     std::cout << "Server Starting" << std::endl;
 
-    // open TCP Socket
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         std::cout << "socket() failed..." << std::endl;
@@ -84,13 +83,12 @@ void ByteChatServer::Initialize(const char* ipaddr, int port)
         std::cout << "setsockopt() failed..." << std::endl;
     }
 
-    //Fill out server details
+
     server_info.sin_family = AF_INET;
-    //serverInfo.sin_addr.s_addr = inet_addr("161.35.232.244");
     inet_pton(AF_INET, ipaddr, &server_info.sin_addr.s_addr);
     server_info.sin_port = htons(port);
 
-    //bind to port
+  
     if (bind(sockfd, (const sockaddr*)&server_info, sizeof(server_info)) == -1) {
         std::cout << "bind() failed..." << std::endl;
     }
@@ -98,10 +96,7 @@ void ByteChatServer::Initialize(const char* ipaddr, int port)
         std::cout << "Bind Successful..." << std::endl;
     }
 
-
-
-
-    // Listen to clients
+  
     if (listen(sockfd, BACKLOG)) {
         std::cout << "listen() failed..." << std::endl;
 
@@ -277,9 +272,7 @@ void ByteChatServer::HandleCommandPacket(ClientInfo* from, Packet* p)
         default:
             break;
     }
-}
-    
-
+}  
 
 std::string ByteChatServer::GetCurTime()
 {
@@ -316,7 +309,7 @@ void ByteChatServer::SendToAll(ClientInfo* fromClient , std::string s) {
         
         std::cout << "Sending to" << client.second.GetName() << std::endl;
             if (send(client.second.GetFd(), msgP.BuildPacket(), msgP.size, 0) == -1) {
-                
+             
                 std::cout << "send() failed..." << std::endl;
             }
        
